@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GeraFit – Rutinas Inteligentes</title>
+
+<style>
+:root{
+  --bg:#000;
+  --card:#0b0b0b;
+  --yellow:#facc15;
+  --yellow2:#eab308;
+  --text:#f9fafb;
+  --muted:#9ca3af;
+}
+
+body{
+  margin:0;
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto;
+  background:var(--bg);
+  color:var(--text);
+}
+
+header{
+  text-align:center;
+  padding:24px;
+  border-bottom:1px solid #111;
+}
+
+header h1{
+  color:var(--yellow);
+  margin:0;
+}
+
+header p{
+  color:var(--muted);
+  margin-top:6px;
+  font-size:14px;
+}
+
+.card{
+  background:var(--card);
+  margin:16px;
+  padding:18px;
+  border-radius:16px;
+  border:1px solid #111;
+}
+
+h3{
+  color:var(--yellow);
+  margin-top:0;
+}
+
+button{
+  width:100%;
+  padding:14px;
+  margin-top:10px;
+  border-radius:14px;
+  border:none;
+  background:linear-gradient(180deg,var(--yellow),var(--yellow2));
+  color:#000;
+  font-weight:800;
+  font-size:15px;
+}
+
+.sub{
+  background:#111;
+  color:var(--yellow);
+  border:1px solid #222;
+}
+
+input, select{
+  width:100%;
+  padding:12px;
+  margin-top:10px;
+  border-radius:12px;
+  border:1px solid #222;
+  background:#050505;
+  color:#fff;
+}
+
+.exercise{
+  background:#050505;
+  border:1px solid #222;
+  padding:14px;
+  border-radius:14px;
+  margin-top:12px;
+}
+
+.exercise b{
+  color:var(--yellow);
+}
+
+small{
+  display:block;
+  margin-top:6px;
+  color:var(--muted);
+}
+
+.ad{
+  border:1px dashed var(--yellow);
+  margin:16px;
+  padding:14px;
+  text-align:center;
+  color:var(--yellow);
+  border-radius:14px;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <h1>GeraFit 💪</h1>
+  <p>Rutinas inteligentes · Gratis · Pro</p>
+</header>
+
+<div class="card">
+<h3>👤 Datos del usuario</h3>
+<input id="peso" placeholder="Peso actual (kg)">
+<input id="estatura" placeholder="Estatura (cm)">
+<input id="objetivoPeso" placeholder="Peso objetivo (kg)">
+</div>
+
+<div class="card">
+<h3>🎯 Objetivo</h3>
+<button onclick="setObjetivo('Volumen')">🔥 Volumen</button>
+<button onclick="setObjetivo('Definición')" class="sub">⚡ Definición</button>
+</div>
+
+<div class="card">
+<h3>📈 Nivel</h3>
+<button onclick="setNivel('Novato')">🟢 Novato</button>
+<button onclick="setNivel('Intermedio')" class="sub">🟡 Intermedio</button>
+<button onclick="setNivel('Avanzado')" class="sub">🔴 Avanzado</button>
+</div>
+
+<div class="card">
+<h3>🏋️ Día de entrenamiento</h3>
+<button onclick="selectGrupo('Pierna')">🦵 Pierna</button>
+<button onclick="selectGrupo('Pecho')" class="sub">💥 Pecho</button>
+<button onclick="selectGrupo('Espalda')" class="sub">🦅 Espalda</button>
+<button onclick="selectGrupo('Hombro')" class="sub">🏔️ Hombro</button>
+<button onclick="selectGrupo('Brazo')" class="sub">💪 Brazo</button>
+<button onclick="selectGrupo('Glúteo')" class="sub">🍑 Glúteo</button>
+</div>
+
+<div class="card" id="subgrupoCard" style="display:none;">
+<h3>🔎 Zona específica</h3>
+<div id="subgrupos"></div>
+</div>
+
+<div class="card" id="rutinaCard" style="display:none;">
+<h3>📋 Rutina del día</h3>
+<div id="rutina"></div>
+</div>
+
+<div class="ad">
+📢 Espacio publicitario (Google AdSense)
+</div>
+
+<script>
+let objetivo="", nivel="", grupo="";
+
+const data = {
+Pierna:{
+  "Cuádriceps":[
+    ["Sentadilla libre","4x8-12","90s"],
+    ["Prensa","4x12","60s"],
+    ["Extensión de pierna","3x15","45s"],
+    ["Sentadilla sissy","3x12","45s"],
+    ["Hack squat","4x10","90s"]
+  ],
+  "Femoral":[
+    ["Peso muerto rumano","4x10","90s"],
+    ["Curl acostado","3x15","45s"],
+    ["Curl sentado","3x12","45s"]
+  ],
+  "Pantorrilla":[
+    ["Elevaciones de talón","5x20","30s"],
+    ["Pantorrilla en prensa","4x25","30s"]
+  ]
+},
+Pecho:{
+  "Superior":[
+    ["Press inclinado barra","4x10","90s"],
+    ["Press inclinado mancuerna","3x12","60s"],
+    ["Cruces en polea","3x15","45s"]
+  ],
+  "Medio":[
+    ["Press plano","4x8-10","90s"],
+    ["Peck fly","3x15","45s"]
+  ]
+},
+Espalda:{
+  "Dorsal":[
+    ["Dominadas","4xAMRAP","90s"],
+    ["Jalón al pecho","4x12","60s"],
+    ["Pullover","3x15","45s"]
+  ],
+  "Espesor":[
+    ["Remo barra","4x10","90s"],
+    ["Remo mancuerna","3x12","60s"]
+  ]
+},
+Hombro:{
+  "Lateral":[
+    ["Elevaciones laterales","4x15","45s"],
+    ["Laterales polea","3x12","45s"]
+  ],
+  "Posterior":[
+    ["Face pull","4x15","45s"],
+    ["Pájaros","3x12","45s"]
+  ]
+},
+Brazo:{
+  "Bíceps":[
+    ["Curl barra","4x10","60s"],
+    ["Curl alterno","3x12","45s"],
+    ["Curl concentrado","3x10","45s"]
+  ],
+  "Tríceps":[
+    ["Press francés","4x10","60s"],
+    ["Fondos","3xAMRAP","60s"],
+    ["Jalón cuerda","3x15","45s"]
+  ]
+},
+Glúteo:{
+  "Glúteo mayor":[
+    ["Hip thrust","4x10","90s"],
+    ["Patada en polea","3x15","45s"],
+    ["Puente glúteo","3x20","45s"]
+  ]
+}
+};
+
+function setObjetivo(o){objetivo=o;}
+function setNivel(n){nivel=n;}
+
+function selectGrupo(g){
+  grupo=g;
+  const sub=document.getElementById("subgrupos");
+  sub.innerHTML="";
+  document.getElementById("subgrupoCard").style.display="block";
+  document.getElementById("rutinaCard").style.display="none";
+  for(let s in data[g]){
+    let b=document.createElement("button");
+    b.className="sub";
+    b.innerText=s;
+    b.onclick=()=>showRutina(s);
+    sub.appendChild(b);
+  }
+}
+
+function showRutina(s){
+  const r=document.getElementById("rutina");
+  r.innerHTML="";
+  document.getElementById("rutinaCard").style.display="block";
+  data[grupo][s].forEach(e=>{
+    r.innerHTML+=`
+    <div class="exercise">
+      <b>${e[0]}</b>
+      <small>Series/Reps: ${e[1]}</small>
+      <small>Descanso: ${e[2]}</small>
+    </div>`;
+  });
+}
+</script>
+
+</body>
+</html>
