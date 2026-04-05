@@ -49,6 +49,7 @@ button{
   background:#1e293b;
   margin-bottom:10px;
 }
+.hidden{ display:none; }
 .ad{
   background:#020617;
   border:1px dashed #22c55e;
@@ -57,7 +58,6 @@ button{
   margin:15px;
   border-radius:10px;
 }
-.hidden{ display:none; }
 </style>
 </head>
 
@@ -77,10 +77,18 @@ button{
 <button onclick="selectGoal('definicion')">🩸 Definición</button>
 </div>
 
-<!-- DESGLOSE OBJETIVO -->
+<!-- NIVEL -->
+<div id="levelBox" class="card hidden">
+<h3>📈 Selecciona tu nivel</h3>
+<button onclick="selectLevel('novato')">🟢 Novato</button>
+<button onclick="selectLevel('intermedio')">🟡 Intermedio</button>
+<button onclick="selectLevel('avanzado')">🔴 Avanzado</button>
+</div>
+
+<!-- INFO OBJETIVO -->
 <div id="goalInfo" class="card hidden"></div>
 
-<!-- SELECCIÓN MÚSCULO -->
+<!-- MUSCULOS -->
 <div id="muscles" class="card hidden">
 <h3>🏋️ ¿Qué vas a entrenar hoy?</h3>
 <button class="muscle-btn" onclick="loadMuscle('pierna')">🦵 Pierna</button>
@@ -91,7 +99,6 @@ button{
 <button class="muscle-btn" onclick="loadMuscle('gluteo')">🍑 Glúteo</button>
 </div>
 
-<!-- RUTINA -->
 <div id="routine"></div>
 
 <div class="ad">📢 Anuncio</div>
@@ -101,65 +108,74 @@ let profile=JSON.parse(localStorage.getItem("gerafitProfile"))||{};
 let progress=JSON.parse(localStorage.getItem("gerafitProgress"))||{};
 
 const exercises={
-  pierna:["Sentadilla","Prensa","Extensión","Curl femoral","Pantorrilla"],
-  pecho:["Press banca","Press inclinado","Aperturas","Cross over"],
-  espalda:["Jalón","Remo barra","Remo mancuerna","Hiperextensiones"],
-  hombro:["Press militar","Laterales","Face pull","Posterior"],
-  brazo:["Curl Z","Martillo","Press francés","Jalón cuerda"],
-  gluteo:["Hip thrust","Sentadilla sumo","Patada polea","Abducciones"]
+  pierna:{
+    novato:["Prensa","Extensión","Curl femoral","Pantorrilla"],
+    intermedio:["Sentadilla","Prensa","Curl femoral","Zancadas"],
+    avanzado:["Sentadilla libre","Hack","Búlgara","Peso muerto"]
+  },
+  pecho:{
+    novato:["Press máquina","Press inclinado","Aperturas"],
+    intermedio:["Press banca","Press inclinado","Cross over"],
+    avanzado:["Press banca pesado","Press inclinado barra","Fondos"]
+  },
+  espalda:{
+    novato:["Jalón","Remo máquina","Pullover"],
+    intermedio:["Dominadas asistidas","Remo barra","Jalón cerrado"],
+    avanzado:["Dominadas","Remo barra pesado","Peso muerto"]
+  },
+  hombro:{
+    novato:["Press máquina","Laterales","Posterior"],
+    intermedio:["Press militar","Laterales","Face pull"],
+    avanzado:["Press militar barra","Laterales pesadas","Remo al mentón"]
+  },
+  brazo:{
+    novato:["Curl mancuerna","Curl polea","Jalón cuerda"],
+    intermedio:["Curl Z","Martillo","Press francés"],
+    avanzado:["Curl barra pesado","Fondos","Extensión overhead"]
+  },
+  gluteo:{
+    novato:["Hip thrust máquina","Abducciones","Puente"],
+    intermedio:["Hip thrust","Sentadilla sumo","Patada polea"],
+    avanzado:["Hip thrust pesado","Búlgara","Peso muerto sumo"]
+  }
 };
 
 function selectGoal(goal){
   profile.goal=goal;
   localStorage.setItem("gerafitProfile",JSON.stringify(profile));
+  document.getElementById("levelBox").classList.remove("hidden");
 
   const info=document.getElementById("goalInfo");
   info.classList.remove("hidden");
-
-  if(goal==="volumen"){
-    info.innerHTML=`
-      <h3>🔥 Objetivo: Volumen</h3>
-      <p>Hoy entrenas para ganar músculo.</p>
-      <ul>
-        <li>Reps: 6–12</li>
-        <li>Descanso: 90–120s</li>
-        <li>Enfoque: Fuerza + Hipertrofia</li>
-      </ul>
-      <button onclick="showMuscles()">Entrenar hoy</button>
-    `;
-  }else{
-    info.innerHTML=`
-      <h3>🩸 Objetivo: Definición</h3>
-      <p>Hoy entrenas para quemar grasa y mantener músculo.</p>
-      <ul>
-        <li>Reps: 12–20</li>
-        <li>Descanso: 30–60s</li>
-        <li>Enfoque: Densidad + gasto calórico</li>
-      </ul>
-      <button onclick="showMuscles()">Entrenar hoy</button>
-    `;
-  }
+  info.innerHTML= goal==="volumen"
+    ? `<h3>🔥 Volumen</h3><p>Más peso · Más descanso · Más músculo</p>`
+    : `<h3>🩸 Definición</h3><p>Más reps · Menos descanso · Más gasto</p>`;
 }
 
-function showMuscles(){
+function selectLevel(level){
+  profile.level=level;
+  localStorage.setItem("gerafitProfile",JSON.stringify(profile));
   document.getElementById("muscles").classList.remove("hidden");
 }
 
 function getScheme(){
-  return profile.goal==="volumen"
-    ? {reps:"12-10-8-6",rest:"90s"}
-    : {reps:"15-15-12-12",rest:"45s"};
+  if(profile.goal==="volumen"){
+    return {reps:"12-10-8-6",rest:"90s"};
+  }else{
+    return {reps:"15-15-12-12",rest:"45s"};
+  }
 }
 
 function loadMuscle(muscle){
   const scheme=getScheme();
+  const list=exercises[muscle][profile.level];
   const container=document.getElementById("routine");
   container.innerHTML="";
   const card=document.createElement("div");
   card.className="card";
-  card.innerHTML=`<h3>${muscle.toUpperCase()} – ${profile.goal}</h3>`;
+  card.innerHTML=`<h3>${muscle.toUpperCase()} · ${profile.level}</h3>`;
 
-  exercises[muscle].forEach(ex=>{
+  list.forEach(ex=>{
     const key=muscle+"-"+ex;
     const saved=progress[key]||{};
     const div=document.createElement("div");
