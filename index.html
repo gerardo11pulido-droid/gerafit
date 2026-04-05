@@ -6,14 +6,20 @@
 <title>GeraFit</title>
 
 <style>
-body{background:#0f172a;color:#fff;font-family:Arial;margin:0}
+body{margin:0;font-family:Arial;background:#0f172a;color:#fff}
 header{background:#020617;padding:20px;text-align:center}
 .card{background:#020617;margin:15px;padding:15px;border-radius:14px}
 h3{color:#22c55e;margin-top:0}
-button,input{width:100%;padding:12px;margin-top:8px;border-radius:10px;border:none}
+button,input{
+  width:100%;padding:12px;margin-top:8px;
+  border-radius:10px;border:none;font-size:15px
+}
 button{background:#22c55e;font-weight:bold}
 .sub{background:#1e293b}
-.exercise{border:1px solid #1e293b;padding:10px;border-radius:10px;margin-top:10px}
+.exercise{
+  border:1px solid #1e293b;
+  padding:10px;border-radius:10px;margin-top:10px
+}
 .done{background:#14532d}
 .ad{border:1px dashed #22c55e;margin:15px;padding:15px;text-align:center}
 small{color:#94a3b8}
@@ -24,7 +30,7 @@ small{color:#94a3b8}
 
 <header>
 <h1>💪 GeraFit</h1>
-<p>Entrena inteligente · Progresa real</p>
+<p>Entrena por partes · Progresa real</p>
 </header>
 
 <div class="ad">📢 Anuncio</div>
@@ -37,15 +43,6 @@ small{color:#94a3b8}
 </div>
 
 <div class="card">
-<h3>👤 Perfil</h3>
-<input id="currentWeight" placeholder="Peso actual (kg)">
-<input id="height" placeholder="Estatura (cm)">
-<input id="targetWeight" placeholder="Peso objetivo (kg)">
-<button onclick="saveProfile()">Guardar</button>
-<small id="profileText"></small>
-</div>
-
-<div class="card">
 <h3>📈 Nivel</h3>
 <button onclick="setLevel('novato')">Novato</button>
 <button onclick="setLevel('intermedio')">Intermedio</button>
@@ -55,15 +52,15 @@ small{color:#94a3b8}
 
 <div class="card">
 <h3>🏋️ ¿Qué entrenas hoy?</h3>
-<button onclick="selectMuscle('pierna')">Pierna</button>
-<button onclick="selectMuscle('pecho')">Pecho</button>
-<button onclick="selectMuscle('espalda')">Espalda</button>
-<button onclick="selectMuscle('hombro')">Hombro</button>
-<button onclick="selectMuscle('brazo')">Brazos</button>
+<button onclick="chooseMuscle('pierna')">Pierna</button>
+<button onclick="chooseMuscle('pecho')">Pecho</button>
+<button onclick="chooseMuscle('espalda')">Espalda</button>
+<button onclick="chooseMuscle('hombro')">Hombro</button>
+<button onclick="chooseMuscle('brazo')">Brazos</button>
 </div>
 
-<div id="subgroups"></div>
-<div id="routine"></div>
+<div id="step2"></div>
+<div id="step3"></div>
 
 <div class="ad">📢 Anuncio</div>
 
@@ -71,75 +68,27 @@ small{color:#94a3b8}
 let profile = JSON.parse(localStorage.getItem("gerafitProfile")) || {};
 let progress = JSON.parse(localStorage.getItem("gerafitProgress")) || {};
 
-const data = {
+const routines = {
   pierna:{
-    Cuadriceps:{
+    "Cuádriceps":{
       novato:["Prensa","Extensión"],
       intermedio:["Sentadilla","Hack"],
       avanzado:["Sentadilla libre","Sissy"]
     },
-    Femoral:{
+    "Femoral":{
       novato:["Curl acostado"],
       intermedio:["Curl sentado","Peso muerto"],
       avanzado:["Peso muerto rumano"]
     },
-    Gluteo:{
+    "Glúteo":{
       novato:["Puente"],
       intermedio:["Hip thrust"],
-      avanzado:["Hip thrust pesado","Búlgara"]
+      avanzado:["Hip thrust pesado"]
     },
-    Pantorrilla:{
+    "Pantorrilla":{
       novato:["Elevaciones de pie"],
       intermedio:["Prensa"],
       avanzado:["Smith"]
-    }
-  },
-  pecho:{
-    Superior:{
-      novato:["Press inclinado máquina"],
-      intermedio:["Press inclinado barra"],
-      avanzado:["Press inclinado pesado"]
-    },
-    Medio:{
-      novato:["Press máquina"],
-      intermedio:["Press banca"],
-      avanzado:["Press banca pesado"]
-    }
-  },
-  espalda:{
-    Dorsal:{
-      novato:["Jalón"],
-      intermedio:["Dominadas asistidas"],
-      avanzado:["Dominadas"]
-    },
-    Media:{
-      novato:["Remo máquina"],
-      intermedio:["Remo barra"],
-      avanzado:["Remo pesado"]
-    }
-  },
-  hombro:{
-    Frontal:{
-      novato:["Press máquina"],
-      intermedio:["Press militar"],
-      avanzado:["Press militar barra"]
-    },
-    Lateral:{
-      novato:["Laterales"],
-      intermedio:["Laterales inclinadas"],
-      avanzado:["Laterales pesadas"]
-    }
-  },
-  brazo:{
-    Biceps:{
-      novato:["Curl mancuerna"],
-      intermedio:["Curl Z"],
-      avanzado:["Curl pesado"]
-    },
-    Triceps:{
-      novato:["Jalón cuerda"],
-      intermedio:["Press francés"],
-      avanzado:["Fondos"]
     }
   }
 };
@@ -149,68 +98,63 @@ function setGoal(g){
   localStorage.setItem("gerafitProfile",JSON.stringify(profile));
   goalText.innerText=`Objetivo: ${g}`;
 }
-function saveProfile(){
-  profile.current=currentWeight.value;
-  profile.height=height.value;
-  profile.target=targetWeight.value;
-  localStorage.setItem("gerafitProfile",JSON.stringify(profile));
-  profileText.innerText="Perfil guardado ✔";
-}
 function setLevel(l){
   profile.level=l;
   localStorage.setItem("gerafitProfile",JSON.stringify(profile));
   levelText.innerText=`Nivel: ${l}`;
 }
+
 function scheme(){
   return profile.goal==="volumen"
     ? {r:"12-10-8",d:"90s"}
     : {r:"15-12-12",d:"45s"};
 }
 
-function selectMuscle(m){
-  if(!profile.level||!profile.goal){
+function chooseMuscle(m){
+  if(!profile.goal||!profile.level){
     alert("Selecciona objetivo y nivel");
     return;
   }
-  subgroups.innerHTML="";
-  routine.innerHTML="";
+  step2.innerHTML="";
+  step3.innerHTML="";
   const card=document.createElement("div");
   card.className="card";
-  card.innerHTML=`<h3>${m.toUpperCase()}</h3>`;
-  Object.keys(data[m]).forEach(s=>{
+  card.innerHTML="<h3>¿Qué parte?</h3>";
+  Object.keys(routines[m]).forEach(part=>{
     const b=document.createElement("button");
     b.className="sub";
-    b.innerText=s;
-    b.onclick=()=>loadExercises(m,s);
+    b.innerText=part;
+    b.onclick=()=>loadExercises(m,part);
     card.appendChild(b);
   });
-  subgroups.appendChild(card);
+  step2.appendChild(card);
 }
 
-function loadExercises(m,s){
-  routine.innerHTML="";
+function loadExercises(m,part){
+  step3.innerHTML="";
   const sc=scheme();
   const card=document.createElement("div");
   card.className="card";
-  card.innerHTML=`<h3>${s}</h3>`;
-  data[m][s][profile.level].forEach(e=>{
-    const key=m+s+e;
+  card.innerHTML=`<h3>${part}</h3>`;
+  routines[m][part][profile.level].forEach(ex=>{
+    const key=m+part+ex;
     const saved=progress[key]||{};
     const div=document.createElement("div");
     div.className="exercise"+(saved.done?" done":"");
     div.innerHTML=`
-      <b>${e}</b><br>
+      <b>${ex}</b><br>
       Reps: ${sc.r} | Descanso: ${sc.d}
       <input placeholder="Peso (kg)" value="${saved.w||""}">
-      <button>${saved.done?"✔":"Marcar"}</button>`;
+      <button>${saved.done?"✔":"Marcar"}</button>
+    `;
     div.querySelector("button").onclick=()=>{
       progress[key]={done:true,w:div.querySelector("input").value};
       localStorage.setItem("gerafitProgress",JSON.stringify(progress));
-      loadExercises(m,s);
+      loadExercises(m,part);
     };
     card.appendChild(div);
   });
-  routine.appendChild(card);
+  step3.appendChild(card);
 }
 </script>
 
