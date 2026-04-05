@@ -30,7 +30,7 @@ small{color:#94a3b8}
 
 <header>
 <h1>💪 GeraFit</h1>
-<p>Entrena por partes · Progresa real</p>
+<p>Entrena por partes · Progresa como atleta</p>
 </header>
 
 <div class="ad">📢 Anuncio</div>
@@ -69,92 +69,222 @@ let profile = JSON.parse(localStorage.getItem("gerafitProfile")) || {};
 let progress = JSON.parse(localStorage.getItem("gerafitProgress")) || {};
 
 const routines = {
-  pierna:{
-    "Cuádriceps":{
-      novato:["Prensa","Extensión"],
-      intermedio:["Sentadilla","Hack"],
-      avanzado:["Sentadilla libre","Sissy"]
-    },
-    "Femoral":{
-      novato:["Curl acostado"],
-      intermedio:["Curl sentado","Peso muerto"],
-      avanzado:["Peso muerto rumano"]
-    },
-    "Glúteo":{
-      novato:["Puente"],
-      intermedio:["Hip thrust"],
-      avanzado:["Hip thrust pesado"]
-    },
-    "Pantorrilla":{
-      novato:["Elevaciones de pie"],
-      intermedio:["Prensa"],
-      avanzado:["Smith"]
-    }
-  }
+pierna:{
+ "Cuádriceps":{
+  novato:[
+   "Prensa",
+   "Extensión",
+   "Sentadilla goblet"
+  ],
+  intermedio:[
+   "Sentadilla barra",
+   "Hack squat",
+   "Prensa pies cerrados",
+   "Extensión unilateral"
+  ],
+  avanzado:[
+   "Sentadilla libre profunda",
+   "Hack squat pies bajos",
+   "Sissy squat asistida",
+   "Prensa pies cerrados",
+   "Extensión con pausa"
+  ]
+ },
+ "Femoral":{
+  novato:[
+   "Curl acostado",
+   "Curl con banda"
+  ],
+  intermedio:[
+   "Curl sentado",
+   "Peso muerto rumano",
+   "Curl unilateral"
+  ],
+  avanzado:[
+   "Peso muerto rumano pesado",
+   "Curl nórdico",
+   "Curl femoral unilateral",
+   "Buenos días"
+  ]
+ },
+ "Glúteo":{
+  novato:[
+   "Puente de glúteo",
+   "Patada en polea"
+  ],
+  intermedio:[
+   "Hip thrust",
+   "Sentadilla sumo",
+   "Step up"
+  ],
+  avanzado:[
+   "Hip thrust pesado",
+   "Búlgara inclinada",
+   "Peso muerto sumo",
+   "Patada polea pesada"
+  ]
+ },
+ "Pantorrilla":{
+  novato:[
+   "Elevaciones de pie",
+   "Elevaciones sentado"
+  ],
+  intermedio:[
+   "Pantorrilla en prensa",
+   "Smith"
+  ],
+  avanzado:[
+   "Pantorrilla unilateral",
+   "Smith pesada",
+   "Isométricos largos"
+  ]
+ }
+},
+pecho:{
+ "Superior":{
+  novato:[
+   "Press inclinado máquina"
+  ],
+  intermedio:[
+   "Press inclinado barra",
+   "Press inclinado mancuerna"
+  ],
+  avanzado:[
+   "Press inclinado pesado",
+   "Aperturas inclinadas",
+   "Press inclinado pausa"
+  ]
+ },
+ "Medio":{
+  novato:[
+   "Press máquina"
+  ],
+  intermedio:[
+   "Press banca",
+   "Press mancuerna"
+  ],
+  avanzado:[
+   "Press banca pesado",
+   "Press con pausa",
+   "Fondos inclinados"
+  ]
+ }
+},
+espalda:{
+ "Dorsal":{
+  novato:[
+   "Jalón al pecho"
+  ],
+  intermedio:[
+   "Dominadas asistidas",
+   "Jalón cerrado"
+  ],
+  avanzado:[
+   "Dominadas estrictas",
+   "Dominadas lastradas",
+   "Pullover polea"
+  ]
+ },
+ "Media":{
+  novato:[
+   "Remo máquina"
+  ],
+  intermedio:[
+   "Remo barra",
+   "Remo mancuerna"
+  ],
+  avanzado:[
+   "Remo Pendlay",
+   "Remo barra pesada",
+   "Remo T"
+  ]
+ }
+},
+hombro:{
+ "Frontal":{
+  novato:["Press máquina"],
+  intermedio:["Press militar"],
+  avanzado:["Press militar barra","Push press"]
+ },
+ "Lateral":{
+  novato:["Laterales"],
+  intermedio:["Laterales inclinadas"],
+  avanzado:["Laterales pesadas","Drop sets"]
+ }
+},
+brazo:{
+ "Bíceps":{
+  novato:["Curl mancuerna"],
+  intermedio:["Curl Z","Curl inclinado"],
+  avanzado:["Curl pesado","21s","Curl araña"]
+ },
+ "Tríceps":{
+  novato:["Jalón cuerda"],
+  intermedio:["Press francés","Fondos asistidos"],
+  avanzado:["Fondos","Rompecráneos","Extensión unilateral"]
+ }
+}
 };
 
 function setGoal(g){
-  profile.goal=g;
-  localStorage.setItem("gerafitProfile",JSON.stringify(profile));
-  goalText.innerText=`Objetivo: ${g}`;
+ profile.goal=g;
+ localStorage.setItem("gerafitProfile",JSON.stringify(profile));
+ goalText.innerText=`Objetivo: ${g}`;
 }
 function setLevel(l){
-  profile.level=l;
-  localStorage.setItem("gerafitProfile",JSON.stringify(profile));
-  levelText.innerText=`Nivel: ${l}`;
+ profile.level=l;
+ localStorage.setItem("gerafitProfile",JSON.stringify(profile));
+ levelText.innerText=`Nivel: ${l}`;
 }
-
 function scheme(){
-  return profile.goal==="volumen"
-    ? {r:"12-10-8",d:"90s"}
-    : {r:"15-12-12",d:"45s"};
+ return profile.goal==="volumen"
+  ? {r:"12-10-8",d:"90s"}
+  : {r:"15-12-12",d:"45s"};
 }
-
 function chooseMuscle(m){
-  if(!profile.goal||!profile.level){
-    alert("Selecciona objetivo y nivel");
-    return;
-  }
-  step2.innerHTML="";
-  step3.innerHTML="";
-  const card=document.createElement("div");
-  card.className="card";
-  card.innerHTML="<h3>¿Qué parte?</h3>";
-  Object.keys(routines[m]).forEach(part=>{
-    const b=document.createElement("button");
-    b.className="sub";
-    b.innerText=part;
-    b.onclick=()=>loadExercises(m,part);
-    card.appendChild(b);
-  });
-  step2.appendChild(card);
+ if(!profile.goal||!profile.level){
+  alert("Selecciona objetivo y nivel");
+  return;
+ }
+ step2.innerHTML="";
+ step3.innerHTML="";
+ const card=document.createElement("div");
+ card.className="card";
+ card.innerHTML="<h3>¿Qué parte?</h3>";
+ Object.keys(routines[m]).forEach(part=>{
+  const b=document.createElement("button");
+  b.className="sub";
+  b.innerText=part;
+  b.onclick=()=>loadExercises(m,part);
+  card.appendChild(b);
+ });
+ step2.appendChild(card);
 }
-
 function loadExercises(m,part){
-  step3.innerHTML="";
-  const sc=scheme();
-  const card=document.createElement("div");
-  card.className="card";
-  card.innerHTML=`<h3>${part}</h3>`;
-  routines[m][part][profile.level].forEach(ex=>{
-    const key=m+part+ex;
-    const saved=progress[key]||{};
-    const div=document.createElement("div");
-    div.className="exercise"+(saved.done?" done":"");
-    div.innerHTML=`
-      <b>${ex}</b><br>
-      Reps: ${sc.r} | Descanso: ${sc.d}
-      <input placeholder="Peso (kg)" value="${saved.w||""}">
-      <button>${saved.done?"✔":"Marcar"}</button>
-    `;
-    div.querySelector("button").onclick=()=>{
-      progress[key]={done:true,w:div.querySelector("input").value};
-      localStorage.setItem("gerafitProgress",JSON.stringify(progress));
-      loadExercises(m,part);
-    };
-    card.appendChild(div);
-  });
-  step3.appendChild(card);
+ step3.innerHTML="";
+ const sc=scheme();
+ const card=document.createElement("div");
+ card.className="card";
+ card.innerHTML=`<h3>${part}</h3>`;
+ routines[m][part][profile.level].forEach(ex=>{
+  const key=m+part+ex;
+  const saved=progress[key]||{};
+  const div=document.createElement("div");
+  div.className="exercise"+(saved.done?" done":"");
+  div.innerHTML=`
+   <b>${ex}</b><br>
+   Reps: ${sc.r} | Descanso: ${sc.d}
+   <input placeholder="Peso (kg)" value="${saved.w||""}">
+   <button>${saved.done?"✔":"Marcar"}</button>
+  `;
+  div.querySelector("button").onclick=()=>{
+   progress[key]={done:true,w:div.querySelector("input").value};
+   localStorage.setItem("gerafitProgress",JSON.stringify(progress));
+   loadExercises(m,part);
+  };
+  card.appendChild(div);
+ });
+ step3.appendChild(card);
 }
 </script>
 
