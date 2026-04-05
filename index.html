@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>GeraFit – Entrena y Progresa</title>
+<title>GeraFit – Rutinas Inteligentes</title>
 
 <style>
 body{
@@ -23,17 +23,20 @@ header{
   padding:15px;
   border-radius:14px;
 }
-h3{ color:#22c55e; }
+h3{ color:#22c55e; margin-top:0; }
 button,input{
   width:100%;
   padding:12px;
   margin-top:8px;
   border-radius:10px;
   border:none;
+  font-size:15px;
 }
-button{ background:#22c55e; font-weight:bold; }
+button{
+  background:#22c55e;
+  font-weight:bold;
+}
 .exercise{
-  background:#020617;
   border:1px solid #1e293b;
   padding:10px;
   border-radius:10px;
@@ -41,6 +44,10 @@ button{ background:#22c55e; font-weight:bold; }
 }
 .done{
   background:#14532d;
+}
+.muscle-btn{
+  background:#1e293b;
+  margin-bottom:10px;
 }
 .ad{
   background:#020617;
@@ -50,14 +57,6 @@ button{ background:#22c55e; font-weight:bold; }
   margin:15px;
   border-radius:10px;
 }
-.day-btn{
-  background:#1e293b;
-  margin:5px;
-}
-.day-btn.active{
-  background:#22c55e;
-  color:#000;
-}
 </style>
 </head>
 
@@ -65,69 +64,102 @@ button{ background:#22c55e; font-weight:bold; }
 
 <header>
 <h1>💪 GeraFit</h1>
-<p>Entrena · Registra · Progresa</p>
+<p>Elige · Entrena · Progresa</p>
 </header>
 
 <div class="ad">📢 Anuncio</div>
 
 <div class="card">
-<h3>📆 Semana</h3>
-<div id="days"></div>
+<h3>🏋️ ¿Qué vas a entrenar hoy?</h3>
+<button class="muscle-btn" onclick="loadMuscle('pierna')">🦵 Leg Day</button>
+<button class="muscle-btn" onclick="loadMuscle('pecho')">🧱 Chest Day</button>
+<button class="muscle-btn" onclick="loadMuscle('espalda')">🦍 Back Day</button>
+<button class="muscle-btn" onclick="loadMuscle('hombro')">🧠 Shoulder Day</button>
+<button class="muscle-btn" onclick="loadMuscle('brazo')">💪 Arms Day</button>
+<button class="muscle-btn" onclick="loadMuscle('gluteo')">🍑 Glute Day</button>
 </div>
 
 <div id="routine"></div>
 
+<div class="ad">📢 Anuncio</div>
+
 <script>
-const week = {
-  "Lunes": {name:"Pierna", ex:["Sentadilla","Prensa","Extensión","Curl femoral","Pantorrilla"]},
-  "Martes": {name:"Hombro + Brazo", ex:["Press militar","Laterales","Curl Z","Press francés"]},
-  "Miércoles": {name:"Pecho + Espalda", ex:["Press inclinado","Aperturas","Jalón","Remo"]},
-  "Jueves": {name:"Pierna", ex:["Hack","Búlgara","Zancadas","Curl femoral"]},
-  "Viernes": {name:"Hombro + Brazo", ex:["Arnold","Face pull","Martillo","Fondos"]},
-  "Sábado": {name:"Pecho + Espalda", ex:["Press banca","Peck fly","Dominadas","Remo barra"]}
+const routines={
+  pierna:[
+    {name:"Sentadilla libre",series:"4",reps:"15-12-10-8",rest:"90s"},
+    {name:"Prensa",series:"4",reps:"12-10-10-8",rest:"90s"},
+    {name:"Extensión de pierna",series:"3",reps:"15-15-12",rest:"60s"},
+    {name:"Curl femoral",series:"3",reps:"12-12-10",rest:"60s"},
+    {name:"Pantorrilla",series:"4",reps:"25",rest:"45s"}
+  ],
+  pecho:[
+    {name:"Press banca",series:"4",reps:"12-10-8-6",rest:"90s"},
+    {name:"Press inclinado",series:"4",reps:"12-10-10-8",rest:"90s"},
+    {name:"Aperturas",series:"3",reps:"15-12-12",rest:"60s"},
+    {name:"Cross over",series:"3",reps:"15-15-12",rest:"60s"}
+  ],
+  espalda:[
+    {name:"Jalón al pecho",series:"4",reps:"12-10-10-8",rest:"90s"},
+    {name:"Remo con barra",series:"4",reps:"12-10-8-8",rest:"90s"},
+    {name:"Remo mancuerna",series:"3",reps:"12-12-10",rest:"60s"},
+    {name:"Hiperextensiones",series:"3",reps:"20",rest:"45s"}
+  ],
+  hombro:[
+    {name:"Press militar",series:"4",reps:"12-10-8-8",rest:"90s"},
+    {name:"Elevaciones laterales",series:"4",reps:"15-12-12-10",rest:"60s"},
+    {name:"Face pull",series:"3",reps:"15-15-12",rest:"60s"},
+    {name:"Posterior mancuerna",series:"3",reps:"15-12-12",rest:"60s"}
+  ],
+  brazo:[
+    {name:"Curl barra Z",series:"4",reps:"12-10-8-8",rest:"60s"},
+    {name:"Curl martillo",series:"3",reps:"12-12-10",rest:"60s"},
+    {name:"Press francés",series:"4",reps:"12-10-8-8",rest:"60s"},
+    {name:"Jalón cuerda",series:"3",reps:"15-12-12",rest:"60s"}
+  ],
+  gluteo:[
+    {name:"Hip thrust",series:"4",reps:"12-10-10-8",rest:"90s"},
+    {name:"Sentadilla sumo",series:"4",reps:"12-12-10-8",rest:"90s"},
+    {name:"Patada en polea",series:"3",reps:"15-15-12",rest:"60s"},
+    {name:"Abducciones",series:"3",reps:"20",rest:"45s"}
+  ]
 };
 
-let progress = JSON.parse(localStorage.getItem("gerafitProgress")) || {};
+let progress=JSON.parse(localStorage.getItem("gerafitExercises"))||{};
 
-const daysDiv = document.getElementById("days");
-Object.keys(week).forEach(day=>{
-  const btn=document.createElement("button");
-  btn.innerText=day;
-  btn.className="day-btn";
-  btn.onclick=()=>loadDay(day);
-  daysDiv.appendChild(btn);
-});
-
-function loadDay(day){
-  document.getElementById("routine").innerHTML="";
+function loadMuscle(muscle){
+  const container=document.getElementById("routine");
+  container.innerHTML="";
   const card=document.createElement("div");
   card.className="card";
-  card.innerHTML=`<h3>${day} – ${week[day].name}</h3>`;
-  
-  week[day].ex.forEach(ex=>{
+  card.innerHTML=`<h3>${muscle.toUpperCase()}</h3>`;
+
+  routines[muscle].forEach(ex=>{
+    const key=muscle+"-"+ex.name;
+    const saved=progress[key]||{};
     const div=document.createElement("div");
     div.className="exercise";
-    const key=`${day}-${ex}`;
-    const saved=progress[key]||{};
+    if(saved.done) div.classList.add("done");
+
     div.innerHTML=`
-      <b>${ex}</b>
+      <b>${ex.name}</b><br>
+      Series: ${ex.series} | Reps: ${ex.reps} | Descanso: ${ex.rest}
       <input placeholder="Peso usado (kg)" value="${saved.weight||""}">
       <button>${saved.done?"✔ Completado":"Marcar ejercicio"}</button>
     `;
+
     const input=div.querySelector("input");
     const btn=div.querySelector("button");
 
-    if(saved.done) div.classList.add("done");
-
     btn.onclick=()=>{
-      progress[key]={weight:input.value,done:true};
-      localStorage.setItem("gerafitProgress",JSON.stringify(progress));
-      loadDay(day);
+      progress[key]={done:true,weight:input.value};
+      localStorage.setItem("gerafitExercises",JSON.stringify(progress));
+      loadMuscle(muscle);
     };
+
     card.appendChild(div);
   });
 
-  document.getElementById("routine").appendChild(card);
+  container.appendChild(card);
 }
 </script>
 
