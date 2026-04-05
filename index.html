@@ -2,51 +2,59 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<title>GeraFit – Weekly Gym Routines</title>
+<title>GeraFit – Smart Gym Routines</title>
 
 <style>
-body {
+body{
   background:#0f172a;
-  color:white;
+  color:#fff;
   font-family:Arial, sans-serif;
-  text-align:center;
   margin:0;
-  padding:0;
 }
-header {
+header{
   background:#020617;
   padding:20px;
+  text-align:center;
 }
-select, button {
-  padding:12px;
-  margin:10px;
+select,button{
   width:90%;
-  max-width:340px;
-  border-radius:8px;
+  max-width:360px;
+  padding:14px;
+  margin:10px auto;
+  display:block;
+  border-radius:10px;
   border:none;
+  font-size:16px;
 }
-button {
+button{
   background:#22c55e;
   font-weight:bold;
 }
-.day {
+.card{
   background:#020617;
   margin:15px;
   padding:15px;
-  border-radius:12px;
-  text-align:left;
+  border-radius:14px;
 }
-.day h3 {
-  margin-top:0;
+.card h3{
   color:#22c55e;
+  margin-top:0;
 }
-footer {
+.lock{
+  opacity:.5;
+}
+.pro-btn{
+  background:#facc15;
+  color:#000;
+}
+footer{
+  text-align:center;
   font-size:12px;
   color:#94a3b8;
   margin:20px;
 }
-.lock {
-  opacity:0.6;
+small{
+  color:#94a3b8;
 }
 </style>
 </head>
@@ -54,22 +62,28 @@ footer {
 <body>
 
 <header>
-<h1>💪 GeraFit – Weekly Gym Routines</h1>
-<p>Smart training plans by Gera</p>
+<h1>💪 GeraFit</h1>
+<p>Smart Training System by Gera</p>
 </header>
 
 <select id="mode">
-  <option value="basic">Rutina General (Gratis)</option>
-  <option value="pro">GeraFit PRO (Avanzado)</option>
+<option value="basic">Rutina General (Gratis)</option>
+<option value="pro">GeraFit PRO 🔥</option>
 </select>
 
 <select id="goal">
-  <option value="volume">Volumen</option>
-  <option value="cut">Definición</option>
-  <option value="strength">Fuerza</option>
+<option value="volume">Volumen</option>
+<option value="cut">Definición</option>
+<option value="strength">Fuerza</option>
 </select>
 
-<button onclick="generateRoutine()">Generar Rutina</button>
+<select id="level">
+<option value="beginner">Principiante</option>
+<option value="intermediate">Intermedio</option>
+<option value="advanced">Avanzado</option>
+</select>
+
+<button onclick="generate()">Generar Rutina</button>
 
 <div id="result"></div>
 
@@ -78,14 +92,23 @@ footer {
 </footer>
 
 <script>
-function generateRoutine() {
-  const mode = document.getElementById("mode").value;
-  const goal = document.getElementById("goal").value;
-  let html = "";
+const week = ["A","B","C"][Math.floor(Math.random()*3)];
 
-  if (mode === "basic") {
-    html = `
-    <div class="day">
+function generate(){
+  const mode=document.getElementById("mode").value;
+  const goal=document.getElementById("goal").value;
+  const level=document.getElementById("level").value;
+  let html="";
+
+  const context={
+    volume:"Descanso 60–90s · Duración 6–8 semanas",
+    cut:"Descanso 30–45s · Duración 4–6 semanas",
+    strength:"Descanso 2–3 min · Duración 6 semanas"
+  };
+
+  if(mode==="basic"){
+    html=`
+    <div class="card">
       <h3>Rutina General</h3>
       <ul>
         <li>Pierna – Sentadilla, Prensa, Extensión</li>
@@ -94,91 +117,98 @@ function generateRoutine() {
         <li>Hombro – Press, Laterales</li>
         <li>Brazo – Curl y Tríceps</li>
       </ul>
-      <p class="lock">🔒 Desbloquea GeraFit PRO para rutinas avanzadas</p>
+      <p class="lock">🔒 Desbloquea PRO para rutinas inteligentes</p>
     </div>`;
   }
 
-  if (mode === "pro") {
-
-    const routines = {
-      volume: {
-        pierna: [
-          "Triserie: Sentadilla libre + Leg extension + Sissy (15-12-10-10-8)",
-          "Triserie 21’s: Hack + Desplantes + Sentadilla libre",
-          "Biserie: Curl femoral + Peso muerto mancuerna (12-10)",
-          "Pantorrilla: Smith + Prensa + Costurera (4x25)"
+  if(mode==="pro"){
+    const data={
+      volume:{
+        pierna:[
+          "Triserie: Sentadilla + Extensión + Sissy",
+          "Hack 21’s + Desplantes",
+          "Curl femoral + PM mancuerna",
+          "Pantorrilla Smith + Prensa"
         ],
-        hombroBrazo: [
-          "Biserie: Press militar barra + mancuerna (15-12-10-8-8)",
-          "Triserie: Arnold + Laterales + Flies invertidos (15-12-10-8-8)",
-          "Triserie Bíceps: Curl Z + Mancuerna 2 pos + Concentrado (15-12-10-8-8)",
-          "Triserie Tríceps: Francés + Patada + Polea (15-12-10-10-8)"
+        upper:[
+          "Press militar barra + mancuerna",
+          "Arnold + Laterales + Invertidos",
+          "Curl Z + Mancuerna + Concentrado",
+          "Francés + Patada + Polea"
         ],
-        pechoEspalda: [
-          "Triserie Pecho: Press inclinado barra + Mancuerna + Crossover",
-          "Triserie Pecho: Cristos inclinados + Press plano + Peck fly",
-          "Triserie Espalda: Jalones + Remo piso + Mancuerna",
-          "Triserie Espalda: Hammer + Remo barra + Mancuerna",
-          "Finisher: Hiperextensiones 4x30"
+        torso:[
+          "Press inclinado barra + Mancuerna + Crossover",
+          "Cristos + Press plano + Peck fly",
+          "Jalón + Remo + Mancuerna",
+          "Hiperextensiones"
         ]
       },
-
-      cut: {
-        pierna: [
-          "Biserie: Zancadas caminando + Extensión (4x20)",
-          "Circuito: Prensa + Curl femoral + Pantorrilla (3 vueltas)",
+      cut:{
+        pierna:[
+          "Zancadas + Extensión",
+          "Circuito Prensa / Curl / Pantorrilla",
           "Isométricos finales"
         ],
-        hombroBrazo: [
-          "Superserie: Press mancuerna + Laterales (4x15)",
-          "Triserie Bíceps: Curl polea + Martillo + Concentrado (15-15-12)",
-          "Triserie Tríceps: Jalón cuerda + Fondos + Extensión (15-15-12)"
+        upper:[
+          "Press mancuerna + Laterales",
+          "Curl polea + Martillo",
+          "Jalón cuerda + Fondos"
         ],
-        pechoEspalda: [
-          "Superserie: Press inclinado + Flexiones",
-          "Triserie Espalda: Jalón + Remo + Pull over",
-          "Cardio final 15–20 min"
+        torso:[
+          "Press inclinado + Flexiones",
+          "Jalón + Remo + Pull over",
+          "Cardio 20 min"
         ]
       },
-
-      strength: {
-        pierna: [
-          "Sentadilla libre 5x5",
+      strength:{
+        pierna:[
+          "Sentadilla 5x5",
           "Hack squat 4x6",
-          "Peso muerto rumano 4x6",
-          "Pantorrilla pesada 4x12"
+          "PM rumano 4x6",
+          "Pantorrilla pesada"
         ],
-        hombroBrazo: [
-          "Press militar barra 5x5",
+        upper:[
+          "Press militar 5x5",
           "Curl barra 4x6",
           "Press cerrado 4x6"
         ],
-        pechoEspalda: [
+        torso:[
           "Press banca 5x5",
-          "Dominadas lastradas 4x6",
+          "Dominadas 4x6",
           "Remo barra 4x6"
         ]
       }
     };
 
-    html += `
-    <div class="day">
-      <h3>Lunes / Jueves – Hombro + Brazo (${goal.toUpperCase()})</h3>
-      <ul>${routines[goal].hombroBrazo.map(e => `<li>${e}</li>`).join("")}</ul>
+    html+=`
+    <div class="card">
+      <h3>📆 Semana ${week}</h3>
+      <small>${context[goal]} · Nivel ${level}</small>
     </div>
 
-    <div class="day">
-      <h3>Martes / Viernes – Pierna (${goal.toUpperCase()})</h3>
-      <ul>${routines[goal].pierna.map(e => `<li>${e}</li>`).join("")}</ul>
+    <div class="card">
+      <h3>Lunes / Jueves – Hombro + Brazo</h3>
+      <ul>${data[goal].upper.map(e=>`<li>${e}</li>`).join("")}</ul>
     </div>
 
-    <div class="day">
-      <h3>Miércoles / Sábado – Pecho + Espalda (${goal.toUpperCase()})</h3>
-      <ul>${routines[goal].pechoEspalda.map(e => `<li>${e}</li>`).join("")}</ul>
-    </div>`;
+    <div class="card">
+      <h3>Martes / Viernes – Pierna</h3>
+      <ul>${data[goal].pierna.map(e=>`<li>${e}</li>`).join("")}</ul>
+    </div>
+
+    <div class="card">
+      <h3>Miércoles / Sábado – Pecho + Espalda</h3>
+      <ul>${data[goal].torso.map(e=>`<li>${e}</li>`).join("")}</ul>
+    </div>
+
+    <div class="card">
+      <button class="pro-btn">📄 Descargar Rutina PDF</button>
+      <small>* Disponible en versión PRO+</small>
+    </div>
+    `;
   }
 
-  document.getElementById("result").innerHTML = html;
+  document.getElementById("result").innerHTML=html;
 }
 </script>
 
