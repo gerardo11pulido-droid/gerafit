@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>GeraFit – Rutinas Inteligentes</title>
+<title>GeraFit – Progreso Fitness</title>
 
 <style>
 body{
@@ -17,7 +17,7 @@ header{
   padding:20px;
   text-align:center;
 }
-select,button{
+select,button,input{
   width:90%;
   max-width:360px;
   padding:14px;
@@ -36,12 +36,6 @@ button{ background:#22c55e; font-weight:bold; }
 }
 .card h3{ color:#22c55e; margin-top:0; }
 small{ color:#94a3b8; }
-footer{
-  text-align:center;
-  font-size:12px;
-  color:#94a3b8;
-  margin:60px 20px 80px;
-}
 .ad{
   background:#020617;
   border:1px dashed #22c55e;
@@ -53,11 +47,15 @@ footer{
 }
 .ad-bottom{
   position:fixed;
-  bottom:0;
-  left:0;
-  right:0;
-  margin:0;
-  border-radius:0;
+  bottom:0; left:0; right:0;
+  background:#020617;
+  border-top:1px dashed #22c55e;
+  padding:10px;
+  text-align:center;
+  font-size:14px;
+}
+.completed{
+  background:#14532d;
 }
 </style>
 </head>
@@ -66,114 +64,109 @@ footer{
 
 <header>
 <h1>💪 GeraFit</h1>
-<p>Rutinas inteligentes · Gratis · By Gera</p>
+<p>Rutinas + Progreso · Gratis · By Gera</p>
 </header>
 
 <div class="ad">📢 Anuncio</div>
 
 <select id="goal">
-  <option value="volume">Volumen</option>
-  <option value="cut">Definición</option>
-  <option value="strength">Fuerza</option>
+  <option value="volume">Volumen (30 días)</option>
+  <option value="cut">Definición (30 días)</option>
+  <option value="strength">Fuerza (42 días)</option>
 </select>
 
-<select id="level">
-  <option value="beginner">Principiante</option>
-  <option value="intermediate">Intermedio</option>
-  <option value="advanced">Avanzado</option>
+<select id="week">
+  <option value="A">Semana A</option>
+  <option value="B">Semana B</option>
+  <option value="C">Semana C</option>
 </select>
 
-<button onclick="generate()">Generar Rutina</button>
+<button onclick="startPlan()">Iniciar / Continuar Plan</button>
 
-<div id="result"></div>
+<div id="plan"></div>
+
+<div class="card">
+  <h3>📊 Registrar Peso</h3>
+  <input id="bodyWeight" placeholder="Peso corporal (kg)">
+  <input id="workWeight" placeholder="Peso usado en ejercicios (kg)">
+  <button onclick="saveWeight()">Guardar</button>
+</div>
+
+<div class="card">
+  <h3>📈 Historial</h3>
+  <ul id="history"></ul>
+</div>
 
 <div class="ad-bottom">📢 Anuncio</div>
 
-<footer>
-© 2026 GeraFit · Gratis · Monetizado con anuncios
-</footer>
-
 <script>
-const week=["A","B","C"][Math.floor(Math.random()*3)];
+const routines={
+  A:{ upper:["Press militar","Laterales","Curl Z","Press francés"],
+      pierna:["Sentadilla","Prensa","Extensión","Curl femoral"],
+      torso:["Press inclinado","Aperturas","Jalón","Remo"]},
+  B:{ upper:["Arnold","Polea lateral","Martillo","Jalón cuerda"],
+      pierna:["Hack","Búlgara","Zancadas","PM rumano"],
+      torso:["Press banca","Peck fly","Dominadas","Remo barra"]},
+  C:{ upper:["Press mancuerna","Face pull","Concentrado","Fondos"],
+      pierna:["Sentadilla frontal","Prensa alta","Sissy","Curl sentado"],
+      torso:["Declinado","Cristos","Pull over","Hiperextensiones"]}
+};
 
-function pick(arr,n){
-  return arr.sort(()=>0.5-Math.random()).slice(0,n);
-}
-
-function generate(){
+function startPlan(){
   const goal=document.getElementById("goal").value;
-  const level=document.getElementById("level").value;
-  let html="";
+  const week=document.getElementById("week").value;
+  const days= goal==="strength"?42:30;
 
-  const context={
-    volume:"Descanso 60–90s · 6–8 semanas",
-    cut:"Descanso 30–45s · 4–6 semanas",
-    strength:"Descanso 2–3 min · 6 semanas"
+  let plan=JSON.parse(localStorage.getItem("gerafitPlan")) || {
+    start:new Date().toISOString(),
+    goal, days, completed:[]
   };
 
-  const bank={
-    pierna:[
-      "Sentadilla libre","Hack squat","Prensa inclinada","Sentadilla búlgara",
-      "Zancadas caminando","Extensión de cuádriceps","Sissy squat",
-      "Curl femoral","Curl femoral sentado","Peso muerto rumano",
-      "Peso muerto mancuerna","Pantorrilla en prensa","Pantorrilla Smith"
-    ],
-    hombro:[
-      "Press militar barra","Press mancuerna","Arnold press",
-      "Elevaciones laterales","Laterales en polea","Flies invertidos",
-      "Face pull","Press tras nuca"
-    ],
-    brazo:[
-      "Curl barra Z","Curl mancuerna","Curl martillo","Curl concentrado",
-      "Press francés","Jalón cuerda","Fondos","Patada mancuerna"
-    ],
-    pecho:[
-      "Press banca","Press inclinado","Press declinado",
-      "Aperturas mancuernas","Cristos en polea","Peck fly","Flexiones"
-    ],
-    espalda:[
-      "Jalón al pecho","Dominadas","Remo barra",
-      "Remo mancuerna","Remo en máquina","Pull over polea",
-      "Peso muerto","Hiperextensiones"
-    ]
-  };
+  localStorage.setItem("gerafitPlan",JSON.stringify(plan));
 
-  html+=`
-  <div class="card">
+  document.getElementById("plan").innerHTML=`
+  <div class="card ${plan.completed.includes(week)?"completed":""}">
     <h3>📆 Semana ${week}</h3>
-    <small>${context[goal]} · Nivel ${level}</small>
-  </div>
-
-  <div class="card">
-    <h3>Lunes / Jueves – Hombro + Brazo</h3>
+    <small>Días restantes: ${days - plan.completed.length*7}</small>
     <ul>
-      ${pick(bank.hombro,3).map(e=>`<li>${e}</li>`).join("")}
-      ${pick(bank.brazo,3).map(e=>`<li>${e}</li>`).join("")}
+      <li><b>Hombro/Brazo:</b> ${routines[week].upper.join(", ")}</li>
+      <li><b>Pierna:</b> ${routines[week].pierna.join(", ")}</li>
+      <li><b>Pecho/Espalda:</b> ${routines[week].torso.join(", ")}</li>
     </ul>
-  </div>
-
-  <div class="ad">📢 Anuncio</div>
-
-  <div class="card">
-    <h3>Martes / Viernes – Pierna</h3>
-    <ul>
-      ${pick(bank.pierna,5).map(e=>`<li>${e}</li>`).join("")}
-    </ul>
-  </div>
-
-  <div class="ad">📢 Anuncio</div>
-
-  <div class="card">
-    <h3>Miércoles / Sábado – Pecho + Espalda</h3>
-    <ul>
-      ${pick(bank.pecho,3).map(e=>`<li>${e}</li>`).join("")}
-      ${pick(bank.espalda,3).map(e=>`<li>${e}</li>`).join("")}
-    </ul>
-  </div>
-  `;
-
-  document.getElementById("result").innerHTML=html;
+    <button onclick="completeWeek('${week}')">✔ Marcar Semana Completada</button>
+  </div>`;
 }
+
+function completeWeek(week){
+  let plan=JSON.parse(localStorage.getItem("gerafitPlan"));
+  if(!plan.completed.includes(week)){
+    plan.completed.push(week);
+    localStorage.setItem("gerafitPlan",JSON.stringify(plan));
+    startPlan();
+  }
+}
+
+function saveWeight(){
+  const bw=document.getElementById("bodyWeight").value;
+  const ww=document.getElementById("workWeight").value;
+  if(!bw || !ww) return;
+
+  let history=JSON.parse(localStorage.getItem("gerafitHistory"))||[];
+  history.push({
+    date:new Date().toLocaleDateString(),
+    bw, ww
+  });
+  localStorage.setItem("gerafitHistory",JSON.stringify(history));
+  loadHistory();
+}
+
+function loadHistory(){
+  let history=JSON.parse(localStorage.getItem("gerafitHistory"))||[];
+  document.getElementById("history").innerHTML=
+    history.map(h=>`<li>${h.date} – BW: ${h.bw}kg / W: ${h.ww}kg</li>`).join("");
+}
+
+loadHistory();
 </script>
 
 </body>
