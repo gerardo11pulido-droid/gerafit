@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>GeraFit – Objetivos Inteligentes</title>
+<title>GeraFit – Entrena con Objetivo</title>
 
 <style>
 body{
@@ -57,19 +57,7 @@ button{
   margin:15px;
   border-radius:10px;
 }
-.progress-bar{
-  background:#1e293b;
-  border-radius:10px;
-  overflow:hidden;
-  margin-top:10px;
-}
-.progress-bar div{
-  height:16px;
-  background:#22c55e;
-}
-.stat{
-  margin:6px 0;
-}
+.hidden{ display:none; }
 </style>
 </head>
 
@@ -77,74 +65,90 @@ button{
 
 <header>
 <h1>💪 GeraFit</h1>
-<p>Entrena con objetivo · Progresa con datos</p>
+<p>Entrena con intención · Progresa con lógica</p>
 </header>
 
 <div class="ad">📢 Anuncio</div>
 
+<!-- OBJETIVO -->
 <div class="card">
-<h3>🎯 Tu objetivo</h3>
-<select id="goal">
-  <option value="volumen">Volumen</option>
-  <option value="definicion">Definición</option>
-</select>
-<input id="currentWeight" placeholder="Peso actual (kg)">
-<input id="targetWeight" placeholder="Peso objetivo (kg)">
-<button onclick="saveProfile()">Guardar objetivo</button>
+<h3>🎯 Selecciona tu objetivo</h3>
+<button onclick="selectGoal('volumen')">🔥 Volumen</button>
+<button onclick="selectGoal('definicion')">🩸 Definición</button>
 </div>
 
-<div class="card">
-<h3>🏋️ Entrenar hoy</h3>
-<button class="muscle-btn" onclick="loadMuscle('pierna')">🦵 Leg Day</button>
-<button class="muscle-btn" onclick="loadMuscle('pecho')">🧱 Chest Day</button>
-<button class="muscle-btn" onclick="loadMuscle('espalda')">🦍 Back Day</button>
-<button class="muscle-btn" onclick="loadMuscle('hombro')">🧠 Shoulder Day</button>
-<button class="muscle-btn" onclick="loadMuscle('brazo')">💪 Arms Day</button>
-<button class="muscle-btn" onclick="loadMuscle('gluteo')">🍑 Glute Day</button>
+<!-- DESGLOSE OBJETIVO -->
+<div id="goalInfo" class="card hidden"></div>
+
+<!-- SELECCIÓN MÚSCULO -->
+<div id="muscles" class="card hidden">
+<h3>🏋️ ¿Qué vas a entrenar hoy?</h3>
+<button class="muscle-btn" onclick="loadMuscle('pierna')">🦵 Pierna</button>
+<button class="muscle-btn" onclick="loadMuscle('pecho')">🧱 Pecho</button>
+<button class="muscle-btn" onclick="loadMuscle('espalda')">🦍 Espalda</button>
+<button class="muscle-btn" onclick="loadMuscle('hombro')">🧠 Hombro</button>
+<button class="muscle-btn" onclick="loadMuscle('brazo')">💪 Brazos</button>
+<button class="muscle-btn" onclick="loadMuscle('gluteo')">🍑 Glúteo</button>
 </div>
 
+<!-- RUTINA -->
 <div id="routine"></div>
-
-<div class="card">
-<h3>📊 Estadísticas</h3>
-<div class="stat" id="weightStat"></div>
-<div class="progress-bar"><div id="progressBar"></div></div>
-<div class="stat" id="exerciseStat"></div>
-<div class="stat" id="daysStat"></div>
-</div>
 
 <div class="ad">📢 Anuncio</div>
 
 <script>
-const baseExercises={
+let profile=JSON.parse(localStorage.getItem("gerafitProfile"))||{};
+let progress=JSON.parse(localStorage.getItem("gerafitProgress"))||{};
+
+const exercises={
   pierna:["Sentadilla","Prensa","Extensión","Curl femoral","Pantorrilla"],
   pecho:["Press banca","Press inclinado","Aperturas","Cross over"],
   espalda:["Jalón","Remo barra","Remo mancuerna","Hiperextensiones"],
   hombro:["Press militar","Laterales","Face pull","Posterior"],
   brazo:["Curl Z","Martillo","Press francés","Jalón cuerda"],
-  gluteo:["Hip thrust","Sumo","Patada polea","Abducciones"]
+  gluteo:["Hip thrust","Sentadilla sumo","Patada polea","Abducciones"]
 };
 
-let profile=JSON.parse(localStorage.getItem("gerafitProfile"))||{};
-let progress=JSON.parse(localStorage.getItem("gerafitProgress"))||{};
-let stats=JSON.parse(localStorage.getItem("gerafitStats"))||{exercises:0,days:0};
-
-function saveProfile(){
-  profile={
-    goal:document.getElementById("goal").value,
-    current:+document.getElementById("currentWeight").value,
-    target:+document.getElementById("targetWeight").value
-  };
+function selectGoal(goal){
+  profile.goal=goal;
   localStorage.setItem("gerafitProfile",JSON.stringify(profile));
-  updateStats();
+
+  const info=document.getElementById("goalInfo");
+  info.classList.remove("hidden");
+
+  if(goal==="volumen"){
+    info.innerHTML=`
+      <h3>🔥 Objetivo: Volumen</h3>
+      <p>Hoy entrenas para ganar músculo.</p>
+      <ul>
+        <li>Reps: 6–12</li>
+        <li>Descanso: 90–120s</li>
+        <li>Enfoque: Fuerza + Hipertrofia</li>
+      </ul>
+      <button onclick="showMuscles()">Entrenar hoy</button>
+    `;
+  }else{
+    info.innerHTML=`
+      <h3>🩸 Objetivo: Definición</h3>
+      <p>Hoy entrenas para quemar grasa y mantener músculo.</p>
+      <ul>
+        <li>Reps: 12–20</li>
+        <li>Descanso: 30–60s</li>
+        <li>Enfoque: Densidad + gasto calórico</li>
+      </ul>
+      <button onclick="showMuscles()">Entrenar hoy</button>
+    `;
+  }
+}
+
+function showMuscles(){
+  document.getElementById("muscles").classList.remove("hidden");
 }
 
 function getScheme(){
-  if(profile.goal==="volumen"){
-    return {reps:"12-10-8-6",rest:"90s"};
-  }else{
-    return {reps:"15-15-12-12",rest:"45s"};
-  }
+  return profile.goal==="volumen"
+    ? {reps:"12-10-8-6",rest:"90s"}
+    : {reps:"15-15-12-12",rest:"45s"};
 }
 
 function loadMuscle(muscle){
@@ -153,9 +157,9 @@ function loadMuscle(muscle){
   container.innerHTML="";
   const card=document.createElement("div");
   card.className="card";
-  card.innerHTML=`<h3>${muscle.toUpperCase()} – ${profile.goal||""}</h3>`;
+  card.innerHTML=`<h3>${muscle.toUpperCase()} – ${profile.goal}</h3>`;
 
-  baseExercises[muscle].forEach(ex=>{
+  exercises[muscle].forEach(ex=>{
     const key=muscle+"-"+ex;
     const saved=progress[key]||{};
     const div=document.createElement("div");
@@ -173,15 +177,9 @@ function loadMuscle(muscle){
     const btn=div.querySelector("button");
 
     btn.onclick=()=>{
-      if(!saved.done){
-        stats.exercises++;
-        stats.days++;
-      }
       progress[key]={done:true,weight:input.value};
       localStorage.setItem("gerafitProgress",JSON.stringify(progress));
-      localStorage.setItem("gerafitStats",JSON.stringify(stats));
       loadMuscle(muscle);
-      updateStats();
     };
 
     card.appendChild(div);
@@ -189,24 +187,6 @@ function loadMuscle(muscle){
 
   container.appendChild(card);
 }
-
-function updateStats(){
-  if(!profile.current||!profile.target) return;
-  const total=Math.abs(profile.target-profile.current);
-  const done=Math.abs(profile.current-profile.target);
-  const percent=Math.min(100,Math.round((done/total)*100));
-
-  document.getElementById("weightStat").innerText=
-    `Peso: ${profile.current}kg → ${profile.target}kg (${percent}%)`;
-
-  document.getElementById("progressBar").style.width=percent+"%";
-  document.getElementById("exerciseStat").innerText=
-    `Ejercicios completados: ${stats.exercises}`;
-  document.getElementById("daysStat").innerText=
-    `Sesiones registradas: ${stats.days}`;
-}
-
-updateStats();
 </script>
 
 </body>
