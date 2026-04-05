@@ -27,23 +27,15 @@ select,button{
   border:none;
   font-size:16px;
 }
-button{
-  background:#22c55e;
-  font-weight:bold;
-}
+button{ background:#22c55e; font-weight:bold; }
 .card{
   background:#020617;
   margin:15px;
   padding:15px;
   border-radius:14px;
 }
-.card h3{
-  color:#22c55e;
-  margin-top:0;
-}
-small{
-  color:#94a3b8;
-}
+.card h3{ color:#22c55e; margin-top:0; }
+small{ color:#94a3b8; }
 footer{
   text-align:center;
   font-size:12px;
@@ -104,73 +96,46 @@ footer{
 <script>
 const week=["A","B","C"][Math.floor(Math.random()*3)];
 
+function pick(arr,n){
+  return arr.sort(()=>0.5-Math.random()).slice(0,n);
+}
+
 function generate(){
   const goal=document.getElementById("goal").value;
   const level=document.getElementById("level").value;
   let html="";
 
   const context={
-    volume:"Descanso 60–90s · Duración 6–8 semanas",
-    cut:"Descanso 30–45s · Duración 4–6 semanas",
-    strength:"Descanso 2–3 min · Duración 6 semanas"
+    volume:"Descanso 60–90s · 6–8 semanas",
+    cut:"Descanso 30–45s · 4–6 semanas",
+    strength:"Descanso 2–3 min · 6 semanas"
   };
 
-  const data={
-    volume:{
-      pierna:[
-        "Triserie: Sentadilla + Extensión + Sissy",
-        "Hack 21’s + Desplantes",
-        "Curl femoral + Peso muerto mancuerna",
-        "Pantorrilla Smith + Prensa"
-      ],
-      upper:[
-        "Press militar barra + mancuerna",
-        "Arnold + Laterales + Invertidos",
-        "Curl Z + Mancuerna + Concentrado",
-        "Francés + Patada + Polea"
-      ],
-      torso:[
-        "Press inclinado barra + Mancuerna + Crossover",
-        "Cristos + Press plano + Peck fly",
-        "Jalón + Remo + Mancuerna",
-        "Hiperextensiones 4x30"
-      ]
-    },
-    cut:{
-      pierna:[
-        "Zancadas caminando + Extensión",
-        "Circuito Prensa / Curl / Pantorrilla",
-        "Isométricos finales"
-      ],
-      upper:[
-        "Press mancuerna + Laterales",
-        "Curl polea + Martillo",
-        "Jalón cuerda + Fondos"
-      ],
-      torso:[
-        "Press inclinado + Flexiones",
-        "Jalón + Remo + Pull over",
-        "Cardio 20 min"
-      ]
-    },
-    strength:{
-      pierna:[
-        "Sentadilla 5x5",
-        "Hack squat 4x6",
-        "Peso muerto rumano 4x6",
-        "Pantorrilla pesada"
-      ],
-      upper:[
-        "Press militar 5x5",
-        "Curl barra 4x6",
-        "Press cerrado 4x6"
-      ],
-      torso:[
-        "Press banca 5x5",
-        "Dominadas 4x6",
-        "Remo barra 4x6"
-      ]
-    }
+  const bank={
+    pierna:[
+      "Sentadilla libre","Hack squat","Prensa inclinada","Sentadilla búlgara",
+      "Zancadas caminando","Extensión de cuádriceps","Sissy squat",
+      "Curl femoral","Curl femoral sentado","Peso muerto rumano",
+      "Peso muerto mancuerna","Pantorrilla en prensa","Pantorrilla Smith"
+    ],
+    hombro:[
+      "Press militar barra","Press mancuerna","Arnold press",
+      "Elevaciones laterales","Laterales en polea","Flies invertidos",
+      "Face pull","Press tras nuca"
+    ],
+    brazo:[
+      "Curl barra Z","Curl mancuerna","Curl martillo","Curl concentrado",
+      "Press francés","Jalón cuerda","Fondos","Patada mancuerna"
+    ],
+    pecho:[
+      "Press banca","Press inclinado","Press declinado",
+      "Aperturas mancuernas","Cristos en polea","Peck fly","Flexiones"
+    ],
+    espalda:[
+      "Jalón al pecho","Dominadas","Remo barra",
+      "Remo mancuerna","Remo en máquina","Pull over polea",
+      "Peso muerto","Hiperextensiones"
+    ]
   };
 
   html+=`
@@ -181,21 +146,29 @@ function generate(){
 
   <div class="card">
     <h3>Lunes / Jueves – Hombro + Brazo</h3>
-    <ul>${data[goal].upper.map(e=>`<li>${e}</li>`).join("")}</ul>
+    <ul>
+      ${pick(bank.hombro,3).map(e=>`<li>${e}</li>`).join("")}
+      ${pick(bank.brazo,3).map(e=>`<li>${e}</li>`).join("")}
+    </ul>
   </div>
 
   <div class="ad">📢 Anuncio</div>
 
   <div class="card">
     <h3>Martes / Viernes – Pierna</h3>
-    <ul>${data[goal].pierna.map(e=>`<li>${e}</li>`).join("")}</ul>
+    <ul>
+      ${pick(bank.pierna,5).map(e=>`<li>${e}</li>`).join("")}
+    </ul>
   </div>
 
   <div class="ad">📢 Anuncio</div>
 
   <div class="card">
     <h3>Miércoles / Sábado – Pecho + Espalda</h3>
-    <ul>${data[goal].torso.map(e=>`<li>${e}</li>`).join("")}</ul>
+    <ul>
+      ${pick(bank.pecho,3).map(e=>`<li>${e}</li>`).join("")}
+      ${pick(bank.espalda,3).map(e=>`<li>${e}</li>`).join("")}
+    </ul>
   </div>
   `;
 
