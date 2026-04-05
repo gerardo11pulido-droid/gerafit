@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>GeraFit – Weekly Gym Routines</title>
+<style>
+body {
+  background:#0f172a;
+  color:white;
+  font-family:Arial;
+  text-align:center;
+}
+select,button {
+  padding:12px;
+  margin:10px;
+  width:90%;
+  max-width:320px;
+}
+button {
+  background:#22c55e;
+  border:none;
+  font-weight:bold;
+}
+.day {
+  background:#020617;
+  margin:15px;
+  padding:15px;
+  border-radius:10px;
+}
+</style>
+</head>
+
+<body>
+
+<h1>💪 GeraFit – Weekly Gym Routines</h1>
+<p>Smart training plans by Gera</p>
+
+<select id="goal">
+  <option value="volume">Volumen / Volume</option>
+  <option value="cut">Definición / Cut</option>
+</select>
+
+<select id="days">
+  <option value="3">3 Días</option>
+  <option value="4">4 Días</option>
+  <option value="5">5 Días</option>
+</select>
+
+<button onclick="generateRoutine()">Generate Routine</button>
+
+<div id="result"></div>
+
+<script>
+function generateRoutine() {
+  const days = document.getElementById("days").value;
+  const goal = document.getElementById("goal").value;
+  let html = "";
+
+  const routines = {
+    volume: {
+      3: [
+        ["Lunes – Pierna", ["Sentadilla 4x8","Prensa 4x12"]],
+        ["Miércoles – Pecho", ["Press banca 4x8","Fondos"]],
+        ["Viernes – Espalda", ["Dominadas","Remo 4x10"]]
+      ],
+      4: [
+        ["Lunes – Pierna", ["Sentadilla","Prensa"]],
+        ["Martes – Pecho", ["Press banca","Aperturas"]],
+        ["Jueves – Espalda", ["Dominadas","Remo"]],
+        ["Viernes – Hombro", ["Press militar","Laterales"]]
+      ],
+      5: [
+        ["Lunes – Pierna", ["Sentadilla","Prensa"]],
+        ["Martes – Pecho", ["Press banca"]],
+        ["Miércoles – Espalda", ["Dominadas"]],
+        ["Jueves – Hombro", ["Laterales"]],
+        ["Viernes – Brazos", ["Curl","Tríceps"]]
+      ]
+    },
+    cut: {
+      3: [
+        ["Lunes – Pierna", ["Zancadas","Extensión"]],
+        ["Miércoles – Pecho", ["Press inclinado"]],
+        ["Viernes – Espalda", ["Jalón","Remo"]]
+      ],
+      4: [
+        ["Lunes – Pierna", ["Zancadas"]],
+        ["Martes – Pecho", ["Press inclinado"]],
+        ["Jueves – Espalda", ["Jalón"]],
+        ["Viernes – Hombro", ["Laterales"]]
+      ],
+      5: [
+        ["Lunes – Pierna", ["Zancadas"]],
+        ["Martes – Pecho", ["Press inclinado"]],
+        ["Miércoles – Espalda", ["Jalón"]],
+        ["Jueves – Hombro", ["Laterales"]],
+        ["Viernes – Brazos", ["Curl","Tríceps"]]
+      ]
+    }
+  };
+
+  routines[goal][days].forEach(day=>{
+    html+=`<div class="day"><h3>${day[0]}</h3><ul>`;
+    day[1].forEach(ex=>html+=`<li>${ex}</li>`);
+    html+=`</ul></div>`;
+  });
+
+  document.getElementById("result").innerHTML=html;
+}
+</script>
+
+</body>
+</html>
