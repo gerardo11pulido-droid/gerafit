@@ -52,6 +52,7 @@ button{
   margin:15px;
   border-radius:10px;
 }
+small{ color:#94a3b8; }
 </style>
 </head>
 
@@ -69,14 +70,17 @@ button{
 <h3>🎯 Objetivo</h3>
 <button onclick="setGoal('volumen')">🔥 Volumen</button>
 <button onclick="setGoal('definicion')">🩸 Definición</button>
+<small id="goalText"></small>
 </div>
 
-<!-- PESOS -->
+<!-- PERFIL -->
 <div class="card">
-<h3>⚖️ Pesos</h3>
+<h3>👤 Tu perfil</h3>
 <input id="currentWeight" placeholder="Peso actual (kg)">
+<input id="height" placeholder="Estatura (cm)">
 <input id="targetWeight" placeholder="Peso objetivo (kg)">
-<button onclick="saveWeights()">Guardar pesos</button>
+<button onclick="saveProfile()">Guardar perfil</button>
+<small id="profileText"></small>
 </div>
 
 <!-- NIVEL -->
@@ -85,6 +89,7 @@ button{
 <button onclick="setLevel('novato')">🟢 Novato</button>
 <button onclick="setLevel('intermedio')">🟡 Intermedio</button>
 <button onclick="setLevel('avanzado')">🔴 Avanzado</button>
+<small id="levelText"></small>
 </div>
 
 <!-- MUSCULOS -->
@@ -142,17 +147,24 @@ const exercises = {
 function setGoal(goal){
   profile.goal = goal;
   localStorage.setItem("gerafitProfile", JSON.stringify(profile));
+  document.getElementById("goalText").innerText =
+    `Objetivo seleccionado: ${goal}`;
 }
 
-function saveWeights(){
+function saveProfile(){
   profile.current = document.getElementById("currentWeight").value;
+  profile.height = document.getElementById("height").value;
   profile.target = document.getElementById("targetWeight").value;
   localStorage.setItem("gerafitProfile", JSON.stringify(profile));
+  document.getElementById("profileText").innerText =
+    `Perfil guardado ✔`;
 }
 
 function setLevel(level){
   profile.level = level;
   localStorage.setItem("gerafitProfile", JSON.stringify(profile));
+  document.getElementById("levelText").innerText =
+    `Nivel: ${level}`;
 }
 
 function getScheme(){
@@ -162,8 +174,8 @@ function getScheme(){
 }
 
 function loadMuscle(muscle){
-  if(!profile.level || !profile.goal){
-    alert("Primero selecciona objetivo y nivel");
+  if(!profile.goal || !profile.level){
+    alert("Selecciona objetivo y nivel primero");
     return;
   }
 
